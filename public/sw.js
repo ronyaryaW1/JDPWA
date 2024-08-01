@@ -1,15 +1,19 @@
-let cacheData = "appV1";
+const CACHE_NAME = "appV1";
+const urlToCache = [
+    '/static/js/main.chunk.js',
+    '/static/js/0/chunk.js',
+    '/static/js/bundle.js',
+    '/index.js',
+    '/',
+    '/users',
+]
 this.addEventListener("install", (event) => {
     event.waitUntil(
-        caches.open(cacheData).then((cache) => {
-            cache.addAll([
-                '/static/js/main.chunk.js',
-                '/static/js/0/chunk.js',
-                '/static/js/bundle.js',
-                '/index.js',
-                '/',
-                '/users',
-            ])
+        caches.open(CACHE_NAME)
+        .then((cache) => {
+            cache.addAll(urlToCache)
+        }).catch((err) => {
+            console.error(err)
         })
     )
 })
@@ -60,7 +64,7 @@ this.addEventListener('fetch', function (event) {
                         // to clone it so we have two streams.
                         var responseToCache = response.clone();
     
-                        caches.open(cacheData)
+                        caches.open(CACHE_NAME)
                             .then(function(cache) {
                                 cache.put(event.request, responseToCache);
                             });
@@ -81,7 +85,7 @@ this.addEventListener('fetch', function (event) {
 
 this.addEventListener('activate', function(event) {
 
-    var cacheWhitelist = cacheData;
+    var cacheWhitelist = CACHE_NAME;
 
     event.waitUntil(
         caches.keys().then(function(cacheNames) {
