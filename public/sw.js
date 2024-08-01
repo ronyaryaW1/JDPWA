@@ -7,39 +7,29 @@ const urlToCache = [
     '/',
     '/users',
 ]
+
 this.addEventListener("install", (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
         .then((cache) => {
-            cache.addAll(urlToCache)
-        }).catch((err) => {
-            console.error(err)
+            return cache.addAll(urlToCache)
+                .catch((error) => {
+                    console.error('Failed to cache', error);
+                    urlToCache.forEach(url => {
+                        fetch(url).then(response => {
+                            if (!response.ok) {
+                                console.error('Failed to fetch: ', url);
+                            }
+                        }).catch(fetchError => {
+                            console.error('Fetch error for: ', url, fetchError);
+                        });
+                    });
+                });
         })
-    )
-})
+    );
+});
 
-// this.addEventListener("fetch", (event) => {
-//     if (!navigator.onLine) {
-//         event.respondWith(
-//             caches.match(event.request)
-//                 .then((resp) => {
-//                     if (resp) {
-//                         return resp
-//                     }
-//                     // tanpa ini ttp bisa offline tapi datanya ilang jadi harus pakai ini
-//                     let requestUrl = event.request.clone();
-//                     fetch(requestUrl)
-//                 }).catch((err) => {
-//                     // console.log('offline')
-//                     // If both fail, show a generic fallback:
-//                     // return caches.match('/offline.html');
-//                     // However, in reality you'd have many different
-//                     // fallbacks, depending on URL & headers.
-//                     // Eg, a fallback silhouette image for avatars.
-//                 })
-//         )
-//     }
-// })
+
 
 this.addEventListener('fetch', function (event) {
     if (!navigator.onLine) {
